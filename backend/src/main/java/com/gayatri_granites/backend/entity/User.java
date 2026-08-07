@@ -27,5 +27,9 @@ public class User {
 
     private String provider;
     
+    @Enumerated(EnumType.STRING)  
+    @Builder.Default
+    private Role role = Role.USER; 
+    
     private LocalDateTime createdAt;
 }
