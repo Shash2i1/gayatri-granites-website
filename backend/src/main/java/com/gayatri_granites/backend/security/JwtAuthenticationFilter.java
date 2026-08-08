@@ -1,9 +1,13 @@
 package com.gayatri_granites.backend.security;
 
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -14,50 +18,77 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter
-        extends OncePerRequestFilter {
+@Slf4j
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain chain)
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
             throws ServletException, IOException {
 
-        Cookie[] cookies =
-                request.getCookies();
+        String requestURI = request.getRequestURI();
 
-        if (cookies != null) {
+        log.debug("Processing request : {}", requestURI);
 
-            for (Cookie cookie : cookies) {
+        try {
 
-                if ("token".equals(cookie.getName())) {
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                    String token =
-                            cookie.getValue();
+                Cookie[] cookies = request.getCookies();
 
-                    String email =
-                            jwtService.extractEmail(token);
+                if (cookies != null) {
 
-                    UsernamePasswordAuthenticationToken auth =
-                            new UsernamePasswordAuthenticationToken(
-                                    email,
-                                    null,
-                                    List.of(
-                                            new SimpleGrantedAuthority(
-                                                    "ROLE_USER")
-                                    )
-                            );
+                    for (Cookie cookie : cookies) {
 
-                    SecurityContextHolder
-                            .getContext()
-                            .setAuthentication(auth);
+                        if ("token".equals(cookie.getName())) {
+
+                            String token = cookie.getValue();
+
+                            if (jwtService.isTokenValid(token)) {
+
+                                String email = jwtService.extractEmail(token);
+                                String role = jwtService.extractRole(token);
+
+                                if (role == null || role.isBlank()) {
+                                    role = "USER"; // safe fallback for older tokens
+                                }
+
+                                UsernamePasswordAuthenticationToken authentication =
+                                        new UsernamePasswordAuthenticationToken(
+                                                email,
+                                                null,
+                                                List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                                        );
+
+                                SecurityContextHolder.getContext()
+                                        .setAuthentication(authentication);
+
+                                log.info("User [{}] authenticated successfully with role [{}].", email, role);
+
+                            } else {
+                                log.warn("Invalid JWT token received.");
+                            }
+
+                            break;
+                        }
+                    }
+
+                } else {
+                    log.debug("No cookies found in request.");
                 }
+
             }
+
+        } catch (Exception e) {
+
+            SecurityContextHolder.clearContext();
+            log.error("JWT Authentication failed.", e);
+
         }
 
-        chain.doFilter(request, response);
+        filterChain.doFilter(request, response);
     }
 }
