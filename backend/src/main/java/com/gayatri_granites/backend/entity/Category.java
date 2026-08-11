@@ -1,0 +1,25 @@
+package com.gayatri_granites.backend.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "categories")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Category {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true, nullable = false)
+    private String name;       // "Granite", "Marble", "Vitrified Tiles"
+
+    private String slug;       // URL-friendly: "granite"
+
+    private String description;
+}
