@@ -22,66 +22,79 @@ import java.util.List;
 @Slf4j
 public class AdminOrderService {
 
-    private final OrderRepository orderRepository;
-    private final OrderMapper orderMapper;
+	private final OrderRepository orderRepository;
+	private final OrderMapper orderMapper;
+	private final InvoiceService invoiceService;
 
-    @Transactional(readOnly = true)
-    public List<OrderResponse> getAllOrders() {
-        return orderMapper.toResponseList(orderRepository.findAll());
-    }
+	@Transactional(readOnly = true)
+	public List<OrderResponse> getAllOrders() {
+		return orderMapper.toResponseList(orderRepository.findAll());
+	}
 
-    @Transactional(readOnly = true)
-    public List<OrderResponse> getOrdersByStatus(OrderStatus status) {
-        return orderMapper.toResponseList(orderRepository.findByStatus(status));
-    }
+	@Transactional(readOnly = true)
+	public List<OrderResponse> getOrdersByStatus(OrderStatus status) {
+		return orderMapper.toResponseList(orderRepository.findByStatus(status));
+	}
 
-    @Transactional(readOnly = true)
-    public OrderResponse getOrder(Long id) {
-        return orderMapper.toResponse(findOrderEntity(id));
-    }
+	@Transactional(readOnly = true)
+	public OrderResponse getOrder(Long id) {
+		return orderMapper.toResponse(findOrderEntity(id));
+	}
 
-    @Transactional
-    public OrderResponse updateStatus(Long id, OrderStatusUpdateRequest request) {
-        Order order = findOrderEntity(id);
-        order.setStatus(request.getStatus());
-        order.setUpdatedAt(LocalDateTime.now());
+	@Transactional
+	public OrderResponse updateStatus(Long id, OrderStatusUpdateRequest request) {
+		Order order = findOrderEntity(id);
+		order.setStatus(request.getStatus());
+		order.setUpdatedAt(LocalDateTime.now());
 
-        Order saved = orderRepository.save(order);
-        log.info("Order [{}] status updated to [{}]", id, request.getStatus());
-        return orderMapper.toResponse(saved);
-    }
+		Order saved = orderRepository.save(order);
+		log.info("Order [{}] status updated to [{}]", id, request.getStatus());
+		return orderMapper.toResponse(saved);
+	}
 
-    @Transactional
-    public OrderResponse assignTransport(Long id, TransportAssignRequest request) {
-        Order order = findOrderEntity(id);
-        order.setTransportDetails(request.getTransportDetails());
-        order.setUpdatedAt(LocalDateTime.now());
+	@Transactional
+	public OrderResponse assignTransport(Long id, TransportAssignRequest request) {
+		Order order = findOrderEntity(id);
+		order.setTransportDetails(request.getTransportDetails());
+		order.setUpdatedAt(LocalDateTime.now());
 
-        Order saved = orderRepository.save(order);
-        log.info("Transport assigned for order [{}]", id);
-        return orderMapper.toResponse(saved);
-    }
+		Order saved = orderRepository.save(order);
+		log.info("Transport assigned for order [{}]", id);
+		return orderMapper.toResponse(saved);
+	}
 
-    @Transactional
-    public OrderResponse processRefund(Long id, RefundRequest request) {
-        Order order = findOrderEntity(id);
-        order.setStatus(OrderStatus.CANCELLED);
-        order.setRefundReason(request.getRefundReason());
-        order.setUpdatedAt(LocalDateTime.now());
+	@Transactional
+	public OrderResponse processRefund(Long id, RefundRequest request) {
+		Order order = findOrderEntity(id);
+		order.setStatus(OrderStatus.CANCELLED);
+		order.setRefundReason(request.getRefundReason());
+		order.setUpdatedAt(LocalDateTime.now());
 
-        Order saved = orderRepository.save(order);
-        log.info("Refund processed for order [{}], reason=[{}]", id, request.getRefundReason());
-        return orderMapper.toResponse(saved);
-    }
+		Order saved = orderRepository.save(order);
+		log.info("Refund processed for order [{}], reason=[{}]", id, request.getRefundReason());
+		return orderMapper.toResponse(saved);
+	}
 
-    @Transactional(readOnly = true)
-    public OrderResponse getOrderForInvoice(Long id) {
-        // stub - wire up a PDF library (OpenPDF / iText) for a real implementation
-        return orderMapper.toResponse(findOrderEntity(id));
-    }
+	@Transactional(readOnly = true)
+	public OrderResponse getOrderForInvoice(Long id) {
+		// stub - wire up a PDF library (OpenPDF / iText) for a real implementation
+		return orderMapper.toResponse(findOrderEntity(id));
+	}
 
-    private Order findOrderEntity(Long id) {
-        return orderRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found: " + id));
-    }
+	/**
+	 * Generates the invoice PDF for an order.
+	 */
+	@Transactional(readOnly = true)
+	public byte[] generateInvoice(Long id) {
+
+		Order order = findOrderEntity(id);
+
+		log.info("Generating invoice for order [{}]", id);
+
+		return invoiceService.generateInvoice(order.getId());
+	}
+
+	private Order findOrderEntity(Long id) {
+		return orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Order not found: " + id));
+	}
 }
