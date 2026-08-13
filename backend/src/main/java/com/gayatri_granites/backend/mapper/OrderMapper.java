@@ -19,6 +19,7 @@ public class OrderMapper {
                 .userEmail(order.getUser().getEmail())
                 .status(order.getStatus())
                 .totalAmount(order.getTotalAmount())
+                .phoneNumber(order.getPhoneNumber())
                 .shippingAddress(order.getShippingAddress())
                 .transportDetails(order.getTransportDetails())
                 .refundReason(order.getRefundReason())

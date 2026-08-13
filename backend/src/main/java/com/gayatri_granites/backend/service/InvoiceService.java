@@ -292,7 +292,7 @@ public class InvoiceService {
 
             customerCell.addElement(
                     new Paragraph(
-                            getCustomerEmail(order),
+                    		getCustomerName(order) + "\n" + getCustomerEmail(order) + "\n"  + order.getPhoneNumber(),
                             normalFont
                     )
             );
@@ -597,6 +597,17 @@ public class InvoiceService {
                 && order.getUser().getEmail() != null) {
 
             return order.getUser().getEmail();
+        }
+
+        return "Customer";
+    }
+    
+    private String getCustomerName(Order order) {
+
+        if (order.getUser() != null
+                && order.getUser().getName() != null) {
+
+            return order.getUser().getName();
         }
 
         return "Customer";

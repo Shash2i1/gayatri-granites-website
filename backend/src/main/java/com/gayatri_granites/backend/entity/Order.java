@@ -38,6 +38,9 @@ public class Order {
     private OrderStatus status = OrderStatus.PENDING;
 
     private BigDecimal totalAmount;
+    
+    @Column(length = 20)
+    private String phoneNumber;
 
     @Column(length = 1000)
     private String shippingAddress;
