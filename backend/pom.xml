@@ -84,6 +84,13 @@
 			<optional>true</optional>
 		</dependency>
 
+		<!-- AWS SDK dep-->
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+			<version>2.25.60</version>
+		</dependency>
+
 		<!-- Development -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
