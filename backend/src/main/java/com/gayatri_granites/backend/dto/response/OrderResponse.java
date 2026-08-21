@@ -18,9 +18,13 @@ public class OrderResponse {
     private Long id;
     private Long userId;
     private String userEmail;
-    private OrderStatus status;
-    private BigDecimal totalAmount;
     private String phoneNumber;
+    private OrderStatus status;
+    private BigDecimal subtotal;
+    private BigDecimal gstAmount;
+    private BigDecimal sgstAmount;
+    private BigDecimal shippingCharge;
+    private BigDecimal totalAmount;
     private String shippingAddress;
     private String transportDetails;
     private String refundReason;

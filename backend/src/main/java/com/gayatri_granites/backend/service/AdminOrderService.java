@@ -5,8 +5,10 @@ import com.gayatri_granites.backend.dto.RefundRequest;
 import com.gayatri_granites.backend.dto.TransportAssignRequest;
 import com.gayatri_granites.backend.dto.response.OrderResponse;
 import com.gayatri_granites.backend.entity.Order;
+import com.gayatri_granites.backend.entity.OrderChargeSettings;
 import com.gayatri_granites.backend.enums.OrderStatus;
 import com.gayatri_granites.backend.mapper.OrderMapper;
+import com.gayatri_granites.backend.repository.OrderChargeSettingsRepository;
 import com.gayatri_granites.backend.repository.OrderRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,6 +28,7 @@ public class AdminOrderService {
 	private final OrderRepository orderRepository;
 	private final OrderMapper orderMapper;
 	private final InvoiceService invoiceService;
+	private final OrderChargeSettingsRepository chargeSettingsRepository;
 
 	@Transactional(readOnly = true)
 	public List<OrderResponse> getAllOrders() {
@@ -75,11 +79,11 @@ public class AdminOrderService {
 		return orderMapper.toResponse(saved);
 	}
 
-	@Transactional(readOnly = true)
-	public OrderResponse getOrderForInvoice(Long id) {
-		// stub - wire up a PDF library (OpenPDF / iText) for a real implementation
-		return orderMapper.toResponse(findOrderEntity(id));
-	}
+//	@Transactional(readOnly = true)
+//	public OrderResponse getOrderForInvoice(Long id) {
+//		// stub - wire up a PDF library (OpenPDF / iText) for a real implementation
+//		return orderMapper.toResponse(findOrderEntity(id));
+//	}
 
 	/**
 	 * Generates the invoice PDF for an order.
@@ -94,7 +98,27 @@ public class AdminOrderService {
 		return invoiceService.generateInvoice(order.getId());
 	}
 
+	@Transactional
+	public Order recalculateCharges(Order order) {
+		OrderChargeSettings settings = chargeSettingsRepository.findAll().stream().findFirst()
+				.orElseGet(() -> OrderChargeSettings.builder().build()); // defaults to 0 if unset
+
+		BigDecimal subtotal = order.getSubtotal() != null ? order.getSubtotal() : BigDecimal.ZERO;
+
+		BigDecimal gst = subtotal.multiply(settings.getGstPercentage()).divide(BigDecimal.valueOf(100));
+		BigDecimal sgst = subtotal.multiply(settings.getSgstPercentage()).divide(BigDecimal.valueOf(100));
+		BigDecimal shipping = settings.getShippingCharge();
+
+		order.setGstAmount(gst);
+		order.setSgstAmount(sgst);
+		order.setShippingCharge(shipping);
+		order.setTotalAmount(subtotal.add(gst).add(sgst).add(shipping));
+
+		return orderRepository.save(order);
+	}
+
 	private Order findOrderEntity(Long id) {
 		return orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Order not found: " + id));
 	}
+
 }

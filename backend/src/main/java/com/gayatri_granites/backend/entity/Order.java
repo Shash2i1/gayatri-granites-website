@@ -1,8 +1,11 @@
 package com.gayatri_granites.backend.entity;
 
 import com.gayatri_granites.backend.enums.OrderStatus;
+
 import jakarta.persistence.*;
+
 import lombok.*;
+
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -28,7 +31,13 @@ public class Order {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private String phoneNumber;
+
+    @OneToMany(
+            mappedBy = "order",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();
 
@@ -37,10 +46,57 @@ public class Order {
     @Builder.Default
     private OrderStatus status = OrderStatus.PENDING;
 
-    private BigDecimal totalAmount;
-    
-    @Column(length = 20)
-    private String phoneNumber;
+    // ==============================
+    // PRICE DETAILS
+    // ==============================
+
+    /**
+     * Total price of all products before taxes and shipping.
+     */
+    @Builder.Default
+    private BigDecimal subtotal = BigDecimal.ZERO;
+
+    /**
+     * GST percentage applied to this order.
+     * Example: 9.00 = 9%
+     */  
+    @Builder.Default
+    private BigDecimal gstPercentage = BigDecimal.ZERO;
+
+    /**
+     * GST amount calculated for this order.
+     */
+    @Builder.Default
+    private BigDecimal gstAmount = BigDecimal.ZERO;
+
+    /**
+     * SGST percentage applied to this order.
+     * Example: 9.00 = 9%
+     */
+    @Builder.Default
+    private BigDecimal sgstPercentage = BigDecimal.ZERO;
+
+    /**
+     * SGST amount calculated for this order.
+     */
+    @Builder.Default
+    private BigDecimal sgstAmount = BigDecimal.ZERO;
+
+    /**
+     * Shipping / other charges applied to this order.
+     */
+    @Builder.Default
+    private BigDecimal shippingCharge = BigDecimal.ZERO;
+
+    /**
+     * Final amount payable by the customer.
+     */
+    @Builder.Default
+    private BigDecimal totalAmount = BigDecimal.ZERO;
+
+    // ==============================
+    // SHIPPING DETAILS
+    // ==============================
 
     @Column(length = 1000)
     private String shippingAddress;
@@ -48,9 +104,18 @@ public class Order {
     @Column(length = 1000)
     private String transportDetails;
 
+    // ==============================
+    // REFUND DETAILS
+    // ==============================
+
     @Column(length = 1000)
     private String refundReason;
 
+    // ==============================
+    // TIMESTAMPS
+    // ==============================
+
     private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
 }
