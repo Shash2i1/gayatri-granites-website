@@ -1,6 +1,7 @@
 package com.gayatri_granites.backend.entity;
 
 import com.gayatri_granites.backend.enums.OrderStatus;
+import com.gayatri_granites.backend.enums.PaymentStatus;
 
 import jakarta.persistence.*;
 
@@ -103,6 +104,14 @@ public class Order {
 
     @Column(length = 1000)
     private String transportDetails;
+    
+    private String razorpayOrderId;
+    private String razorpayPaymentId;
+
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Builder.Default
+    private PaymentStatus paymentStatus = PaymentStatus.PENDING;
 
     // ==============================
     // REFUND DETAILS
@@ -111,9 +120,7 @@ public class Order {
     @Column(length = 1000)
     private String refundReason;
 
-    // ==============================
-    // TIMESTAMPS
-    // ==============================
+    
 
     private LocalDateTime createdAt;
 
