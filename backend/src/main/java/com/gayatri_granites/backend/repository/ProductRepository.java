@@ -1,6 +1,5 @@
 package com.gayatri_granites.backend.repository;
 
-
 import com.gayatri_granites.backend.entity.Product;
 import com.gayatri_granites.backend.enums.StockStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +10,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByCategoryId(Long categoryId);
     List<Product> findByStockStatus(StockStatus stockStatus);
     List<Product> findByActiveTrue();
+    List<Product> findByActiveTrueAndCategoryId(Long categoryId);
+    List<Product> findByActiveTrueAndNameContainingIgnoreCase(String keyword);
 }
