@@ -303,3 +303,101 @@ was actually paid for will produce a mismatched order.
   `modal.ondismiss` callback) — no order was created, so just return them to the cart.
 - `discountPrice` on a product, if present, is what's actually charged instead of `basePrice` —
   reflect this in the cart/product UI (e.g. strikethrough `basePrice`, show `discountPrice`).
+
+---
+
+# PART 3 — My Orders
+
+Base path: `/api/orders`
+Auth required: **Yes** — any logged-in user. Every endpoint here is automatically scoped to
+the currently authenticated customer's own orders — there is no way to view or download
+another customer's order through these endpoints.
+
+## GET /api/orders
+
+Returns the logged-in customer's own order history (all statuses).
+
+**Response — 200 OK** — array of `OrderResponse` (same shape as the admin Order API), only
+containing orders belonging to the calling user.
+```json
+[
+  {
+    "id": 12,
+    "userId": 3,
+    "userEmail": "customer@example.com",
+    "phoneNumber": "9876543210",
+    "status": "CONFIRMED",
+    "subtotal": 900.00,
+    "gstPercentage": 9.00,
+    "gstAmount": 81.00,
+    "sgstPercentage": 9.00,
+    "sgstAmount": 81.00,
+    "shippingCharge": 250.00,
+    "totalAmount": 1312.00,
+    "shippingAddress": "12 MG Road, Chennai, TN 600001",
+    "transportDetails": null,
+    "refundReason": null,
+    "items": [
+      {
+        "id": 20,
+        "productId": 1,
+        "productName": "Kashmir White Granite",
+        "variantId": 1,
+        "variantSku": "KWG-600-POL-18",
+        "quantity": 5,
+        "priceAtPurchase": 130.00
+      }
+    ],
+    "createdAt": "2026-08-22T12:13:37.868128",
+    "updatedAt": "2026-08-22T12:13:37.868128"
+  }
+]
+```
+
+---
+
+## GET /api/orders/{id}
+
+Returns a single order — only if it belongs to the logged-in customer.
+
+**Response — 200 OK** — same shape as one entry above.
+
+**Response — 404 Not Found** — returned both when the order truly doesn't exist and when it
+exists but belongs to a different customer. Deliberately identical in both cases so a customer
+can't tell, by probing order IDs, which ones are real orders belonging to someone else.
+```json
+{ "success": false, "message": "Order not found: 1" }
+```
+
+---
+
+## GET /api/orders/{id}/invoice
+
+Downloads the PDF invoice for one of the logged-in customer's own orders. Same ownership check
+as above applies before the PDF is generated.
+
+**Response — 200 OK**
+- `Content-Type: application/pdf`
+- `Content-Disposition: attachment; filename="invoice-order-{id}.pdf"`
+- Body: raw PDF bytes
+
+**curl example**
+```bash
+curl http://localhost:8081/api/orders/12/invoice \
+  -b "token=<customer JWT>" \
+  --output my-invoice.pdf
+```
+
+**Response — 404 Not Found** — same as above, order doesn't exist or isn't the caller's.
+
+---
+
+## Notes
+
+- These endpoints reuse the exact same `OrderResponse`/`OrderMapper` and PDF invoice generation
+  logic as the admin Order API — the only difference is the query is scoped to
+  `authentication.getName()` and an explicit ownership check runs before returning any order or
+  generating any invoice.
+- No route configuration changes were needed for this module — `/api/orders/**` already falls
+  under the default `anyRequest().authenticated()` rule, so any logged-in user (customer or
+  admin) can use it for their own orders.
