@@ -56,12 +56,13 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                 		.requestMatchers(
-                                "/oauth2/**",
-                                "/login/**",
-                                "/api/logout",
-                                "/api/products/**",
-                                "/api/categories"
-                        )
+                		        "/oauth2/**",
+                		        "/login/**",
+                		        "/api/logout",
+                		        "/api/products/**",
+                		        "/api/categories",
+                		        "/api/settings/**"
+                		)
                         .permitAll()
                         .requestMatchers("/api/admin/**")
                         .hasRole("ADMIN")
