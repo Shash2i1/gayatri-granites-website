@@ -52,9 +52,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
             ResponseCookie cookie = ResponseCookie.from("token", jwt)
                     .httpOnly(true)
-                    .secure(false)      // Change to true in production (HTTPS)
+                    .secure(true)      // Change to true in production (HTTPS)
                     .path("/")
-                    .sameSite("Lax")
+                    .sameSite("None")
                     .maxAge(86400)
                     .build();
 
