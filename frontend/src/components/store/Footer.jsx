@@ -37,7 +37,7 @@ export default function Footer() {
           <ul className="space-y-2 text-xs text-white/70">
             <li>+91 98765 43210</li>
             <li>info@gayatrigranites.com</li>
-            <li>Hyderabad, Telangana</li>
+            <li>Handigona, Kumta, Uttarakannada, Karnataka</li>
           </ul>
         </div>
       </div>
