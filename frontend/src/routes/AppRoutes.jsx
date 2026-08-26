@@ -19,11 +19,16 @@ import CustomerDetailPage from '../pages/admin/CustomerDetailPage';
 import TermsPage from '../pages/store/TermsPage';
 import ShippingPolicyPage from '../pages/store/ShippingPolicyPage';
 import ChargeSettingsPage from '../pages/admin/ChargeSettingsPage';
+import LoginPage from '../pages/common/LoginPage';
 
 export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Authentication routes*/}
+        <Route path='/login' element={<LoginPage/>}>
+
+        </Route>
         {/* Customer-facing storefront */}
         <Route path="/" element={<StoreLayout />}>
           <Route index element={<HomePage />} />
