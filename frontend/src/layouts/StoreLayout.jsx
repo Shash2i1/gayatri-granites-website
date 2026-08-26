@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import Header from '../components/store/Header';
 import Footer from '../components/store/Footer';
@@ -7,6 +7,7 @@ import ScrollToTop from '../components/common/ScrollToTop';
 
 export default function StoreLayout() {
   const { fetchCurrentUser, user } = useAuthStore();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCurrentUser();
