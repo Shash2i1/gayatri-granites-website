@@ -6,15 +6,21 @@ import { useAuthStore } from '../store/authStore';
 import ScrollToTop from '../components/common/ScrollToTop';
 
 export default function StoreLayout() {
-  const { fetchCurrentUser } = useAuthStore();
+  const { fetchCurrentUser, user } = useAuthStore();
 
   useEffect(() => {
     fetchCurrentUser();
   }, [fetchCurrentUser]);
 
+
+  if (!user) {
+    navigate("/login");
+    return null;
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
-      <ScrollToTop/>
+      <ScrollToTop />
       <Header />
       <main className="flex-1">
         <Outlet />

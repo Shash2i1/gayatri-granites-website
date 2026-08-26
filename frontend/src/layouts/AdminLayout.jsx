@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import Sidebar from '../components/admin/Sidebar';
 import Topbar from '../components/admin/Topbar';
@@ -8,6 +8,7 @@ import { API_BASE_URL } from '../api/client';
 
 export default function AdminLayout() {
   const { user, loading, isAdmin, fetchCurrentUser } = useAuthStore();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCurrentUser();
@@ -18,7 +19,7 @@ export default function AdminLayout() {
   }
 
   if (!user) {
-    window.location.href = `${API_BASE_URL}/oauth2/authorization/google`;
+    navigate("/login");
     return null;
   }
 
