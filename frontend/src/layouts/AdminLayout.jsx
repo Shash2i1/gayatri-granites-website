@@ -1,36 +1,8 @@
-import { Outlet, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/admin/Sidebar';
 import Topbar from '../components/admin/Topbar';
-import AdminLayoutSkeleton from '../components/admin/AdminLayoutSkeleton';
-import { useAuthStore } from '../store/authStore';
-import { API_BASE_URL } from '../api/client';
 
 export default function AdminLayout() {
-  const { user, loading, isAdmin, fetchCurrentUser } = useAuthStore();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchCurrentUser();
-  }, [fetchCurrentUser]);
-
-  if (loading) {
-    return <AdminLayoutSkeleton />;
-  }
-
-  if (!user) {
-    navigate("/login");
-    return null;
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-danger px-4 text-center">
-        Access denied — admin only.
-      </div>
-    );
-  }
-
   return (
     <div className="flex">
       <Sidebar />

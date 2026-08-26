@@ -1,24 +1,9 @@
-import { Outlet, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
 import Header from '../components/store/Header';
 import Footer from '../components/store/Footer';
-import { useAuthStore } from '../store/authStore';
 import ScrollToTop from '../components/common/ScrollToTop';
 
 export default function StoreLayout() {
-  const { fetchCurrentUser, user } = useAuthStore();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchCurrentUser();
-  }, [fetchCurrentUser]);
-
-
-  if (!user) {
-    navigate("/login");
-    return null;
-  }
-
   return (
     <div className="min-h-screen flex flex-col">
       <ScrollToTop />
