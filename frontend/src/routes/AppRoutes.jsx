@@ -45,9 +45,9 @@ export default function AppRoutes() {
           <Route
             path="checkout"
             element={
-              <ProtectedRoute>
+              // <ProtectedRoute>
                 <CheckoutPage />
-              </ProtectedRoute>
+              // </ProtectedRoute>
             }
           />
           <Route
