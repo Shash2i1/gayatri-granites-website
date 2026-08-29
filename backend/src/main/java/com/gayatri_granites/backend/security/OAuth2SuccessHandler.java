@@ -62,7 +62,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
             log.info("JWT cookie created successfully for [{}].", email);
 
-            String redirectPath = user.getRole() == Role.ADMIN ? "/admin/dashboard" : "/";
+            String redirectPath = user.getRole() == Role.ADMIN ? "/admin" : "/";
             response.sendRedirect(frontendUrl + redirectPath);
 
         } catch (Exception e) {
