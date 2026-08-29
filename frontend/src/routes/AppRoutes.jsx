@@ -5,7 +5,7 @@ import ProtectedRoute from '../components/common/ProtectedRoute';
 import AdminLayoutSkeleton from '../components/admin/AdminLayoutSkeleton';
 
 import DashboardPage from '../pages/admin/DashboardPage';
-// import CategoriesPage from '../pages/admin/CategoriesPage';
+import CategoriesPage from '../pages/admin/CategoriesPage';
 import ProductsPage from '../pages/admin/ProductsPage';
 import AdminProductDetailPage from '../pages/admin/ProductDetailPage';
 import OrderDetailPage from '../pages/admin/OrderDetailPage';
@@ -78,7 +78,7 @@ export default function AppRoutes() {
           }
         >
           <Route index element={<DashboardPage />} />
-          {/* <Route path="categories" element={<CategoriesPage />} /> */}
+          <Route path="categories" element={<CategoriesPage />} /> 
           <Route path="products" element={<ProductsPage />} />
           <Route path="products/:id" element={<AdminProductDetailPage />} />
           <Route path="orders" element={<OrdersPage />} />
